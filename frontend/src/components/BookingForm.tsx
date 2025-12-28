@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useForm } from "react-hook-form";
 import type { UserType } from "../shared/types";
 
@@ -11,11 +10,7 @@ type BookingFormData = {
 };
 
 const BookingForm = ({ user }: Props) => {
-  const {
-    formState: { errors },
-    handleSubmit,
-    register,
-  } = useForm<BookingFormData>({
+  const { register } = useForm<BookingFormData>({
     defaultValues: {
       email: user.email,
       firstName: user.firstName,

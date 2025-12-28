@@ -111,7 +111,7 @@ const Search = () => {
             {search.destination ? `in ${search.destination}` : ""}
           </span>
           <select
-            className="p-2 border rounded-md border border-gray-300"
+            className="p-2 border rounded-md border-gray-300"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
           >

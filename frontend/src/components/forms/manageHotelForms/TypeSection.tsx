@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import { hotelTypes } from "../../../config/hotel-options-config";
-import type { HotelFormData } from "../../ManageHotelForm";
+import type { HotelFormData } from "../../../shared/types";
 
 const TypeSection = () => {
   const {
@@ -25,7 +25,7 @@ const TypeSection = () => {
               py-2
               font-semibold
               text-center
-              break-words
+              wrap-break-word
               ${typeWatch === type.label ? "bg-blue-300" : "bg-gray-300"}
             `}
           >
