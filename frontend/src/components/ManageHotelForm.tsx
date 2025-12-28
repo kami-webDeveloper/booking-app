@@ -12,7 +12,7 @@ import { useParams } from "react-router";
 import type { HotelFormData, HotelType } from "../shared/types";
 
 type Props = {
-  hotel: HotelType;
+  hotel?: HotelType;
 };
 
 const ManageHotelForm = ({ hotel }: Props) => {

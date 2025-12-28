@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router";
-import type { HotelFormData } from "../../components/ManageHotelForm";
+import type { HotelFormData } from "../../shared/types";
 
 export default function useAddHotel() {
   const navigate = useNavigate();
