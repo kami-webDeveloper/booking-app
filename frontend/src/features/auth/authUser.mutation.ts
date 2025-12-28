@@ -57,8 +57,6 @@ export default function useAuthUser<A extends AuthAction>(action: A) {
       });
 
       navigate(location.state?.from || "/", { replace: true });
-
-      if (!location.state) setTimeout(() => window.location.reload(), 1000);
     },
 
     onError: (err: Error) => {

@@ -8,12 +8,16 @@ import { DecodedToken } from "../../types";
 // sending express-validator errors in response
 const checkForErrors = (req, res) => {
   const errors = validationResult(req);
-
-  if (!errors.isEmpty())
-    return res.status(400).json({
+  if (!errors.isEmpty()) {
+    res.status(400).json({
       status: "fail",
       message: errors.array().map((err) => err.msg),
     });
+
+    return true;
+  }
+
+  return false;
 };
 
 // Sending jwt through cookie logic
@@ -43,7 +47,7 @@ export const userController = {
   // <--- user signup --->
   register: async (req: Request, res: Response) => {
     try {
-      checkForErrors(req, res);
+      if (checkForErrors(req, res)) return;
 
       const { email, password, firstName, lastName } = req.body;
 
@@ -76,7 +80,7 @@ export const userController = {
   // <--- user login --->
   login: async (req: Request, res: Response) => {
     try {
-      checkForErrors(req, res);
+      if (checkForErrors(req, res)) return;
 
       const { email, password } = req.body;
 
