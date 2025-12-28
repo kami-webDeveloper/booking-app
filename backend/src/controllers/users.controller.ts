@@ -22,9 +22,18 @@ const createSendToken = (id, res) => {
     expiresIn: process.env.JWT_EXPIRE_TIME || "1d",
   });
 
-  res.cookie(process.env.JWT_TOKEN_NAME.toString(), token, {
+  // Development
+  // res.cookie(process.env.JWT_TOKEN_NAME.toString(), token, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production",
+  //   maxAge: +process.env.JWT_COOKIE_EXPIRE_TIME || 24 * 60 * 60 * 1000,
+  // });
+
+  // Vercel hosting
+  res.cookie(process.env.JWT_TOKEN_NAME as string, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    sameSite: "none",
     maxAge: +process.env.JWT_COOKIE_EXPIRE_TIME || 24 * 60 * 60 * 1000,
   });
 };
@@ -96,9 +105,18 @@ export const userController = {
   },
 
   logout: (req: Request, res: Response) => {
+    // Development
+    // res.cookie(process.env.JWT_TOKEN_NAME as string, "", {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   expires: new Date(0),
+    // });
+
+    // Vercel hosting
     res.cookie(process.env.JWT_TOKEN_NAME as string, "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
+      sameSite: "none",
       expires: new Date(0),
     });
 
