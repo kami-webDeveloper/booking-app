@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { HotelType } from "../../types";
-import bookingSchema from "./booking.model";
+import { bookingSchema } from "./booking.model";
 
 const hotelSchema = new mongoose.Schema<HotelType>(
   {

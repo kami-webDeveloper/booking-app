@@ -7,6 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 import userRouter from "./routes/usersRoute";
 import myHotelsRouter from "./routes/myHotelsRoute";
 import hotelsRouter from "./routes/hotelsRoute";
+import paymentsRouter from "./routes/paymentsRoute";
 import { connectDB } from "./db";
 
 cloudinary.config({
@@ -37,8 +38,9 @@ app.use(async (_req, _res, next) => {
 app.use("/api/users", userRouter);
 app.use("/api/my-hotels", myHotelsRouter);
 app.use("/api/hotels", hotelsRouter);
+app.use("/api/payments", paymentsRouter);
 
-// running server and database in production
+// running server and database in development
 if (process.env.NODE_ENV === "development" || !process.env.VERCEL) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {

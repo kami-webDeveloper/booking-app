@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { BookingType } from "../../types";
 
-const bookingSchema = new mongoose.Schema<BookingType>({
+export const bookingSchema = new mongoose.Schema<BookingType>({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true },
@@ -13,4 +13,6 @@ const bookingSchema = new mongoose.Schema<BookingType>({
   totalCost: { type: Number, required: true },
 });
 
-export default bookingSchema;
+const Booking = mongoose.model("Booking", bookingSchema);
+
+export default Booking;

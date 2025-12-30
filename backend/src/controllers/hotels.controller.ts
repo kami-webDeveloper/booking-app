@@ -4,6 +4,9 @@ import cloudinary from "cloudinary";
 import { Types } from "mongoose";
 import { constructSearchQuery } from "./constructSearchQuery";
 import { validationResult } from "express-validator";
+import Payment from "../models/payment.model";
+
+const MERCHANT_ID = "ca81cc63-5f02-4847-8502-5a809d0bfebb";
 
 const returnCloudinaryImages = async (files) =>
   await Promise.all(
@@ -240,6 +243,154 @@ export const hotelController = {
     } catch (err) {
       console.log("Error getting the hotel", err);
       res.status(500).json({ message: "Something went wrong" });
+    }
+  },
+
+  createBookingPaymentIntent: async (req: Request, res: Response) => {
+    try {
+      const {
+        firstName,
+        lastName,
+        email,
+        adultCount,
+        childCount,
+        checkIn,
+        checkOut,
+        numberOfNights,
+      } = req.body;
+
+      if (!numberOfNights || numberOfNights <= 0)
+        return res.status(400).json({
+          status: "fail",
+          message: "Invalid number of nights",
+        });
+
+      const hotel = await Hotel.findById(req.params.id);
+
+      if (!hotel)
+        return res.status(404).json({
+          status: "fail",
+          message: "Hotel not found",
+        });
+
+      const totalCost = hotel.pricePerNight * numberOfNights;
+      const amount = totalCost * 1300000; // IRR
+
+      const response = await fetch(
+        "https://sandbox.zarinpal.com/pg/v4/payment/request.json",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            merchant_id: MERCHANT_ID,
+            amount,
+            description: `پرداخت هزینه رزرو هتل ${hotel.name} برای ${numberOfNights} شب`,
+            callback_url: `${process.env.BACKEND_URL}/api/payments/verify`,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!result?.data?.authority)
+        return res.status(500).json({
+          status: "fail",
+          message: "Failed to create payment request",
+        });
+
+      await Payment.create({
+        userId: req.user._id,
+        hotelId: hotel._id,
+        firstName,
+        lastName,
+        email,
+        adultCount,
+        childCount,
+        checkIn,
+        checkOut,
+        numberOfNights,
+        amount,
+        authority: result.data.authority,
+      });
+
+      return res.status(200).json({
+        status: "success",
+        data: {
+          authority: result.data.authority,
+          code: result.data.code,
+          amount,
+        },
+      });
+    } catch (err) {
+      console.error("Error creating payment intent:", err);
+      return res.status(500).json({ message: "Something went wrong" });
+    }
+  },
+
+  verifyPayment: async (req: Request, res: Response) => {
+    try {
+      const { Authority, Status } = req.query;
+
+      if (!Authority || Status !== "OK") {
+        return res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+      }
+
+      const payment = await Payment.findOne({ authority: Authority });
+
+      if (!payment) {
+        return res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+      }
+
+      // Prevent double verification
+      if (payment.status === "PAID") {
+        return res.redirect(`${process.env.FRONTEND_URL}/my-bookings`);
+      }
+
+      const response = await fetch(
+        "https://sandbox.zarinpal.com/pg/v4/payment/verify.json",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            merchant_id: MERCHANT_ID,
+            authority: Authority,
+            amount: payment.amount,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (![100, 101].includes(result?.data?.code)) {
+        payment.status = "FAILED";
+        await payment.save();
+        return res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+      }
+
+      payment.status = "PAID";
+      payment.refId = result.data.ref_id;
+      await payment.save();
+
+      await Hotel.findByIdAndUpdate(payment.hotelId, {
+        $push: {
+          bookings: {
+            firstName: payment.firstName,
+            lastName: payment.lastName,
+            email: payment.email,
+            adultCount: payment.adultCount,
+            childCount: payment.childCount,
+            checkIn: payment.checkIn,
+            checkOut: payment.checkOut,
+            userId: payment.userId.toString(),
+            totalCost: payment.amount,
+          },
+        },
+      });
+
+      return res.redirect(`${process.env.FRONTEND_URL}/my-bookings`);
+    } catch (err) {
+      console.error("Verify payment error:", err);
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
     }
   },
 };

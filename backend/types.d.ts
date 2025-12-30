@@ -43,6 +43,23 @@ export type BookingType = {
   totalCost: number;
 };
 
+export type PaymentType = {
+  userId: string;
+  hotelId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  adultCount: number;
+  childCount: number;
+  checkIn: Date;
+  checkOut: Date;
+  numberOfNights: number;
+  amount: number;
+  authority: String;
+  status: string;
+  refId: String;
+};
+
 declare global {
   namespace Express {
     interface Request {

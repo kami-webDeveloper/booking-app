@@ -59,3 +59,31 @@ export type UserType = {
   firstName: string;
   lastName: string;
 };
+
+export type PaymentIntentResponse = {
+  status: string;
+  data: {
+    code: number;
+    authority: string;
+    totalCost: number;
+  };
+};
+
+export type CreatePaymentIntentPayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  adultCount: number;
+  childCount: number;
+  checkIn: Date;
+  checkOut: Date;
+  numberOfNights: number;
+};
+
+export type CreatePaymentIntentResponse = {
+  status: "success";
+  data: {
+    authority: string;
+    amount: number;
+  };
+};

@@ -40,7 +40,14 @@ const Booking = () => {
         </div>
       )}
       {userData ? (
-        <BookingForm user={userData} />
+        <BookingForm
+          user={userData}
+          checkIn={search.checkIn}
+          checkOut={search.checkOut}
+          adultCount={search.adultCount}
+          childCount={search.childCount}
+          numberOfNights={numberOfNights}
+        />
       ) : (
         <span className="text-xl text-center mx-auto text-red-500">
           User data is not found. Please try again booking this hotel.
